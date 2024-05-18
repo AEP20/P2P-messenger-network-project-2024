@@ -1,4 +1,4 @@
-# Project: P2P Messenger Application
+# CMP2204 Introduction to Computer NetworksSpring 2024, Term Project
 
 ## Description
 This project is a messaging application that provides P2P (Peer-to-Peer) communication. It allows users to communicate directly with each other and securely transmit their messages by encrypting them. The application enables users to exchange keys among themselves to encrypt their messages.
@@ -41,3 +41,7 @@ This project is a messaging application that provides P2P (Peer-to-Peer) communi
 - If a user goes offline, they are marked as "Away" in the list.
 - Ensure the recipient is online before sending a message.
 - !! Users need to have two computers running the application on the same local network to be able to communicate with each other.
+
+## Contributors
+- https://github.com/denizozm (Deniz Özmen)
+- https://github.com/AEP20 (Ahmet Emre Parmaksız)
