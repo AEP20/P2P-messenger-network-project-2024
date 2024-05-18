@@ -18,7 +18,7 @@ This project is a messaging application that provides P2P (Peer-to-Peer) communi
     ```
 3. Run the application from the terminal with the following command:
     ```bash
-    python app.py
+    python gui.py
     ```
 4. Enter a username in the opened window and click the "Save" button.
 
