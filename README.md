@@ -14,13 +14,23 @@ This project is a messaging application that provides P2P (Peer-to-Peer) communi
 1. Download or copy the project files.
 2. Install the necessary Python libraries:
     ```bash
-    pip install cryptography requests
+    pip install cryptography requests asyncio
     ```
-3. Run the application from the terminal with the following command:
+3. Ensure your Python environment includes the following standard libraries (usually included by default):
+    - warnings
+    - json
+    - socket
+    - threading
+    - time
+    - random
+    - tkinter
+    - http.server
+    - os
+4. Run the application from the terminal with the following command:
     ```bash
     python gui.py
     ```
-4. Enter a username in the opened window and click the "Save" button.
+5. Enter a username in the opened window and click the "Save" button.
 
 ## Known Limitations
 - The application only works for users on the same local network.
@@ -32,3 +42,4 @@ This project is a messaging application that provides P2P (Peer-to-Peer) communi
 - While the application is running, it continuously searches for and discovers users. Therefore, network traffic may increase slightly.
 - If a user goes offline, they are marked as "Away" in the list.
 - Ensure the recipient is online before sending a message.
+- !! Users need to have two computers running the application on the same local network to be able to communicate with each other.
