@@ -23,14 +23,12 @@ This project is a messaging application that provides P2P (Peer-to-Peer) communi
 4. Enter a username in the opened window and click the "Save" button.
 
 ## Known Limitations
-
 - The application only works for users on the same local network.
 - The key exchange algorithm used for message encryption provides basic security and may be vulnerable to more advanced attacks.
 - The chat log is saved locally, so it cannot be accessed from other devices.
+- The user interface is simple and needs improvement in terms of user experience.
 
 ## Additional Notes
-
 - While the application is running, it continuously searches for and discovers users. Therefore, network traffic may increase slightly.
 - If a user goes offline, they are marked as "Away" in the list.
 - Ensure the recipient is online before sending a message.
-
