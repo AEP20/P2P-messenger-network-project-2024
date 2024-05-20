@@ -363,7 +363,3 @@ if __name__ == "__main__":
     port = int(input("Enter port number: "))
     app = P2PMessengerApp(port)
     app.mainloop()
-
-
-# SOCK_DGRAM --> UDP
-# SOCK_STREAM --> TCP
