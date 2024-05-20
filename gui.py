@@ -13,7 +13,7 @@ import requests
 import os
 
 class P2PMessengerApp(tk.Tk):
-    def __init__(self, port):
+    def __init__(self, port): # GUI
         super().__init__()
         self.title("P2P Messenger")
 
@@ -36,8 +36,8 @@ class P2PMessengerApp(tk.Tk):
         self.send_button = ttk.Button(self, text="Send", command=self.send_message)
         self.send_button.pack(side=tk.BOTTOM)
 
-        self.log_viewer_button = ttk.Button(self, text="View Chat Log", command=self.open_log_viewer)
-        self.log_viewer_button.pack(side=tk.BOTTOM)
+       # self.log_viewer_button = ttk.Button(self, text="View Chat Log", command=self.open_log_viewer)
+       # self.log_viewer_button.pack(side=tk.BOTTOM)
 
         self.username = None
         self.peers = {}
@@ -47,8 +47,8 @@ class P2PMessengerApp(tk.Tk):
         self.chat_history = {}
         self.port = port
 
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind(('0.0.0.0', self.port))
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP
+        self.server_socket.bind(('0.0.0.0', self.port)) 
         self.server_socket.listen()
         print(f"Server listening on port: {self.port}")
 
@@ -63,32 +63,31 @@ class P2PMessengerApp(tk.Tk):
         httpd.serve_forever()
 
     def get_ip_address(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #UDP
         try:
             s.connect(("10.255.255.255", 1))
             IP = s.getsockname()[0]
         except Exception:
-            IP = "127.0.0.1"
+            IP = "127.0.0.1" # default IP address
         finally:
             s.close()
         return IP
 
-    def announce_registration(self):
+    def announce_registration(self): # REGISTRATION ANNOUNCEMENT WITH USING UDP BROADCAST
         broadcast_ip = '255.255.255.255'
         broadcast_port = 6004
 
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock: #UDP
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             message = json.dumps({'username': self.username, 'ip': self.get_ip_address(), 'port': self.port}).encode('utf-8')
             while True:
                 sock.sendto(message, (broadcast_ip, broadcast_port))
-                print(f"Registration announcement made: {message}")
                 time.sleep(8)
 
-    def peer_discovery(self):
-        discovery_port = 6004
+    def peer_discovery(self): # PEER DISCOVERY WITH USING UDP BROADCAST
+        discovery_port = 6004 
 
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock: #UDP
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind(('', discovery_port))
 
@@ -113,12 +112,12 @@ class P2PMessengerApp(tk.Tk):
             status = "Online" if time.time() - info['last_seen'] <= 10 else "Away"
             self.peer_list.insert(tk.END, f"{peer_name} ({info['ip']}:{info['port']}) - {status}")
 
-    def accept_connections(self):
+    def accept_connections(self): 
         while True:
             client_socket, addr = self.server_socket.accept()
             threading.Thread(target=self.handle_client, args=(client_socket, addr), daemon=True).start()
 
-    def handle_client(self, client_socket, addr):
+    def handle_client(self, client_socket, addr): # HANDLE CLIENT CONNECTIONS WITH TCP
         peer_name = None
         try:
             while True: 
@@ -153,7 +152,7 @@ class P2PMessengerApp(tk.Tk):
                 del self.peers[peer_name]
                 self.update_peer_list()
 
-    def handle_chat_request(self, peer_name, request, client_socket):
+    def handle_chat_request(self, peer_name, request, client_socket): 
         if request == 'request':
             response = {'chat_request': 'accept'}
             client_socket.sendall(json.dumps(response).encode('utf-8'))
@@ -162,12 +161,12 @@ class P2PMessengerApp(tk.Tk):
             client_socket.close()
             threading.Thread(target=self.start_p2p_chat, args=(peer_name,)).start()
 
-    def start_p2p_chat(self, peer_name):
+    def start_p2p_chat(self, peer_name): # P2P CHAT WITH TCP
         peer_ip = self.peers[peer_name]['ip']
         peer_port = self.peers[peer_name]['port']
         
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as p2p_socket:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as p2p_socket: #TCP
                 p2p_socket.connect((peer_ip, peer_port))
                 self.chat_area.insert(tk.END, f"P2P connection established with {peer_name}.\n")
                 while True:
@@ -205,7 +204,7 @@ class P2PMessengerApp(tk.Tk):
     def send_message_event(self, event):
         self.send_message()
 
-    def send_message(self):
+    def send_message(self): # SEND MESSAGE WITH TCP
         if not self.selected_peer:
             self.chat_area.insert(tk.END, "Please select a user.\n")
             return
@@ -223,7 +222,7 @@ class P2PMessengerApp(tk.Tk):
         peer_port = self.selected_peer['port']
 
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket: #TCP
                 client_socket.connect((peer_ip, peer_port))
                 client_socket.sendall(json.dumps(msg).encode('utf-8'))
         except Exception as e:
@@ -240,13 +239,13 @@ class P2PMessengerApp(tk.Tk):
         request_message = {'username': self.username, 'chat_request': 'request'}
 
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket: #TCP
                 client_socket.connect((peer_ip, peer_port))
                 client_socket.sendall(json.dumps(request_message).encode('utf-8'))
         except Exception as e:
             print(f"Error sending chat request: {e}")
 
-    def initiate_key_exchange(self, client_socket):
+    def initiate_key_exchange(self, client_socket): # Diffie-Hellman key exchange
         p = 23
         g = 5
         a = random.randint(1, p - 1)
@@ -269,7 +268,7 @@ class P2PMessengerApp(tk.Tk):
                 except json.JSONDecodeError:
                     print("Received an invalid JSON message.")
 
-    def handle_key_exchange(self, peer_name, B):
+    def handle_key_exchange(self, peer_name, B): # Diffie-Hellman key exchange
         p = 23
         g = 5
         b = random.randint(1, p - 1)
@@ -280,7 +279,7 @@ class P2PMessengerApp(tk.Tk):
         fernet_key = Fernet.generate_key()
         self.shared_keys[peer_name] = fernet_key
 
-    def encrypt_message(self, peer_name, message):
+    def encrypt_message(self, peer_name, message): # fernet symmetric encryption
         fernet_key = self.shared_keys.get(peer_name)
         if fernet_key:
             f = Fernet(fernet_key)
@@ -288,7 +287,7 @@ class P2PMessengerApp(tk.Tk):
             return encrypted_message.decode()
         return message
 
-    def decrypt_message(self, peer_name, encrypted_message):
+    def decrypt_message(self, peer_name, encrypted_message): # fernet symmetric decryption
         fernet_key = self.shared_keys.get(peer_name)
         if fernet_key:
             f = Fernet(fernet_key)
@@ -299,7 +298,7 @@ class P2PMessengerApp(tk.Tk):
     def display_message(self, sender, message):
         self.chat_area.insert(tk.END, f"{sender}: {message}\n")
 
-    def log_message(self, peer_name, message, direction):
+    def log_message(self, peer_name, message, direction): # LOGGING CHAT MESSAGES
         log_filename = f"{peer_name}_chat_log.json"
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         log_entry = {
@@ -319,7 +318,7 @@ class P2PMessengerApp(tk.Tk):
         with open(log_filename, "w") as log_file:
             json.dump(chat_log, log_file, indent=4)
 
-    def open_log_viewer(self):
+    def open_log_viewer(self): # OPEN CHAT LOG VIEWER
         server_ip = self.get_ip_address()
         server_port = self.port + 1
         peer_name = self.selected_peer['name'] if self.selected_peer else self.username
@@ -364,3 +363,7 @@ if __name__ == "__main__":
     port = int(input("Enter port number: "))
     app = P2PMessengerApp(port)
     app.mainloop()
+
+
+# SOCK_DGRAM --> UDP
+# SOCK_STREAM --> TCP
